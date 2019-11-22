@@ -56,7 +56,7 @@ func TestCSharpImports(t *testing.T) {
 			Name: "named template",
 			Src:  `using f = Foo.Bar<int>;`,
 			Exp: []string{
-				"Foo.Bar<int>",
+				"Foo.Bar",
 			},
 		},
 		{
@@ -84,7 +84,6 @@ func TestCSharpImports(t *testing.T) {
 			// Using alias directive for a generic class.
 			using UsingAlias = NameSpace2.MyClass<int>;
 
-
 			class Test {
 				static void main() {
 					using (var font1 = new Font("Arial", 10.0f))
@@ -96,7 +95,7 @@ func TestCSharpImports(t *testing.T) {
 			`,
 			Exp: []string{
 				"NameSpace1.MyClass",
-				"NameSpace2.MyClass<int>",
+				"NameSpace2.MyClass",
 				"System",
 				"System.Collections.Generic",
 				"System.Math",

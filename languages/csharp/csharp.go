@@ -38,6 +38,7 @@ func (l language) GetLanguage() *sitter.Language {
 
 func (l language) Imports(content []byte, root *sitter.Node) ([]string, error) {
 	var out []string
+
 	c := sitter.NewQueryCursor()
 	c.Exec(q, root)
 	for {
@@ -47,10 +48,38 @@ func (l language) Imports(content []byte, root *sitter.Node) ([]string, error) {
 		}
 
 		for _, cap := range m.Captures {
-			str := string(content[cap.Node.StartByte():cap.Node.EndByte()])
-			out = append(out, str)
+			out = append(out, filterOut(content, cap.Node))
 		}
 	}
 
 	return out, nil
+}
+
+func filterOut(content []byte, node *sitter.Node) string {
+	var (
+		filters = map[string]struct{}{
+			"type_argument_list": struct{}{},
+		}
+
+		out string
+
+		fn func(n *sitter.Node)
+	)
+
+	fn = func(n *sitter.Node) {
+		if _, ok := filters[n.Type()]; ok {
+			return
+		}
+
+		if cnt := int(n.ChildCount()); cnt == 0 {
+			out += string(content[n.StartByte():n.EndByte()])
+		} else {
+			for i := 0; i < cnt; i++ {
+				fn(n.Child(i))
+			}
+		}
+	}
+
+	fn(node)
+	return out
 }
